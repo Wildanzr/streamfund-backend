@@ -101,17 +101,17 @@ export class NotifyService {
                 decimal,
                 symbol,
               };
-              await this.contractService.tokenAdded(newToken);
+              await this.contractService.whtokenAdded(newToken);
               break;
             case 'TokenRemoved':
               const { tokenAddress: removedTokenAddr } = log.args;
               this.logger.log(`Token ${removedTokenAddr} removed`);
-              await this.contractService.tokenRemoved(removedTokenAddr);
+              await this.contractService.whtokenRemoved(removedTokenAddr);
               break;
             case 'StreamerRegistered':
               const { streamer } = log.args;
               this.logger.log(`Streamer ${streamer} registered`);
-              await this.contractService.streamerRegistered(streamer);
+              await this.contractService.whstreamerRegistered(streamer);
               break;
             case 'SupportReceived':
               const { amount, message, streamer: to, from, token } = log.args;
@@ -131,7 +131,7 @@ export class NotifyService {
                 hash: log.transactionHash,
                 streamer: to,
               };
-              await this.contractService.supportReceived(newSupport);
+              await this.contractService.whsupportReceived(newSupport);
               break;
             default:
               this.logger.log('Unknown event');

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { customNanoid } from 'src/lib/utils';
@@ -9,6 +9,7 @@ import {
 import { Streamer, StreamerDocument } from 'src/schema/streamer.schema';
 import { Support, SupportDocument } from 'src/schema/support.schema';
 import { Token, TokenDocument } from 'src/schema/token.schema';
+import { RegenerateDTO } from './dto/regenerate.dto';
 
 @Injectable()
 export class ContractsService {
@@ -20,8 +21,54 @@ export class ContractsService {
     @InjectModel(Support.name) private readonly supportModel: Model<Support>,
   ) {}
 
-  // Token
-  async tokenAdded(
+  async getStreamerByAddress(
+    address: string,
+  ): Promise<StreamerDocument | null> {
+    try {
+      const streamer = await this.streamerModel
+        .findOne({
+          address,
+        })
+        .select('_id address streamkey')
+        .exec();
+
+      return streamer;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
+  }
+
+  async regenerateStreamKey(body: RegenerateDTO): Promise<string> {
+    try {
+      const streamer = await this.streamerModel
+        .findOne({
+          address: body.address,
+        })
+        .select('_id')
+        .exec();
+
+      if (!streamer) {
+        throw new NotFoundException('Streamer not found');
+      }
+
+      const newKey = customNanoid();
+      await this.streamerModel.findOneAndUpdate(
+        { address: body.address },
+        { streamkey: newKey, updated_at: new Date() },
+        { new: true },
+      );
+      return newKey;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
+  }
+
+  // Private methods
+
+  // Webhook methods
+  async whtokenAdded(
     payload: EventTokenAdded,
     session: mongoose.ClientSession | null = null,
   ): Promise<TokenDocument> {
@@ -45,7 +92,7 @@ export class ContractsService {
     }
   }
 
-  async tokenRemoved(
+  async whtokenRemoved(
     tokenAddress: string,
     session: mongoose.ClientSession | null = null,
   ): Promise<void> {
@@ -57,7 +104,7 @@ export class ContractsService {
     }
   }
 
-  async getTokenByAddress(
+  async whgetTokenByAddress(
     address: string,
     session: mongoose.ClientSession | null = null,
   ): Promise<TokenDocument | null> {
@@ -72,8 +119,7 @@ export class ContractsService {
     }
   }
 
-  // Streamer
-  async streamerRegistered(
+  async whstreamerRegistered(
     address: string,
     session: mongoose.ClientSession | null = null,
   ): Promise<StreamerDocument> {
@@ -90,13 +136,12 @@ export class ContractsService {
     }
   }
 
-  // Support
-  async supportReceived(
+  async whsupportReceived(
     payload: EventSupportReceived,
     session: mongoose.ClientSession | null = null,
   ): Promise<SupportDocument> {
     try {
-      const token = await this.getTokenByAddress(payload.token, session);
+      const token = await this.whgetTokenByAddress(payload.token, session);
       if (!token) {
         this.logger.error('Token not found');
         return null;

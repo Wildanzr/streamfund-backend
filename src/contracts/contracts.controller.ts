@@ -6,14 +6,17 @@ import {
   HttpStatus,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ContractsService } from './contracts.service';
 import { SuccessResponseDTO } from 'src/lib/dto/response.dto';
 import { RegenerateDTO } from './dto/regenerate.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { QueryStreamerDTO } from './dto/query.dto';
+import { HmacguardGuard } from 'src/lib/guards/hmac.guard';
 
 @Controller('contracts')
+@UseGuards(HmacguardGuard)
 export class ContractsController {
   constructor(private readonly contractsService: ContractsService) {}
 

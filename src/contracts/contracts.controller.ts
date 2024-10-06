@@ -41,6 +41,26 @@ export class ContractsController {
     };
   }
 
+  @Get('/streamkey')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get stream key',
+  })
+  async checkStreamKey(
+    @Query('key') streamkey: string,
+  ): Promise<SuccessResponseDTO> {
+    const valid = await this.contractsService.checkStreamKey(streamkey);
+
+    return {
+      success: true,
+      message: 'Stream key fetched successfully',
+      statusCode: HttpStatus.OK,
+      data: {
+        valid,
+      },
+    };
+  }
+
   @Get('/tokens')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

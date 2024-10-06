@@ -88,6 +88,26 @@ export class ContractsService {
     }
   }
 
+  async checkStreamKey(streamkey: string): Promise<boolean> {
+    try {
+      const streamer = await this.streamerModel
+        .findOne({
+          streamkey,
+        })
+        .select('_id')
+        .exec();
+
+      if (!streamer) {
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
+  }
+
   // Private methods
   private async isStreamerExist(address: string): Promise<boolean> {
     try {

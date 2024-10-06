@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
-import { NotifyGateway } from './notify.gateway';
-import { NotifyService } from './notify.service';
+import { ContractsService } from './contracts.service';
+import { ContractsController } from './contracts.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Streamer, StreamerSchema } from 'src/schema/streamer.schema';
 import { Support, SupportSchema } from 'src/schema/support.schema';
 import { Token, TokenSchema } from 'src/schema/token.schema';
-import { ContractsService } from 'src/contracts/contracts.service';
 
 @Module({
   imports: [
@@ -15,7 +14,7 @@ import { ContractsService } from 'src/contracts/contracts.service';
       { name: Token.name, schema: TokenSchema },
     ]),
   ],
-  providers: [NotifyGateway, NotifyService, ContractsService],
-  exports: [NotifyGateway],
+  controllers: [ContractsController],
+  providers: [ContractsService],
 })
-export class NotifyModule {}
+export class ContractsModule {}

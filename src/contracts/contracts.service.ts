@@ -75,6 +75,19 @@ export class ContractsService {
     }
   }
 
+  async getTokens(): Promise<TokenDocument[]> {
+    try {
+      const tokens = await this.tokenModel
+        .find()
+        .select('_id address symbol logo decimal')
+        .exec();
+      return tokens;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
+  }
+
   // Private methods
   private async isStreamerExist(address: string): Promise<boolean> {
     try {

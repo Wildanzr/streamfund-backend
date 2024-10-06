@@ -41,6 +41,24 @@ export class ContractsController {
     };
   }
 
+  @Get('/tokens')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get all tokens',
+  })
+  async getTokens(): Promise<SuccessResponseDTO> {
+    const tokens = await this.contractsService.getTokens();
+
+    return {
+      success: true,
+      message: 'Tokens fetched successfully',
+      statusCode: HttpStatus.OK,
+      data: {
+        tokens,
+      },
+    };
+  }
+
   @Post('/streamkey')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({

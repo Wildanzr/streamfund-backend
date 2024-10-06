@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { QueuemanagerService } from 'src/queuemanager/queuemanager.service';
 import { createPublicClient, http, parseAbiItem } from 'viem';
 import { baseSepolia } from 'viem/chains';
 
@@ -11,6 +12,8 @@ export class ListenerService {
       `https://base-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
     ),
   });
+
+  constructor(private readonly queueService: QueuemanagerService) {}
 
   watchContract() {
     this.logger.log('Watching for events...');
@@ -52,6 +55,10 @@ export class ListenerService {
               this.logger.log(`Amount: ${amount}`);
               this.logger.log(`Message: ${message}`);
               this.logger.log(`Token: ${token}`);
+              this.queueService.addNotification(to, {
+                amount: Number(amount),
+                message,
+              });
               break;
             default:
               this.logger.log('Unknown event');

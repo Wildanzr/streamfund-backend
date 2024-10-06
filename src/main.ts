@@ -5,14 +5,16 @@ import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.int
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { ListenerService } from './listener/listener.service';
+import { QueuemanagerService } from './queuemanager/queuemanager.service';
 
 async function bootstrap() {
   const logger = new Logger('Main');
-  const listner = new ListenerService();
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
     logger: ['error', 'debug', 'log', 'error', 'warn'],
   });
+  const queueService = app.get(QueuemanagerService);
+  const listner = new ListenerService(queueService);
 
   // ValidationPipe
   app.useGlobalPipes(

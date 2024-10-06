@@ -8,7 +8,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway()
 export class NotifyGateway
@@ -37,9 +37,11 @@ export class NotifyGateway
   }
 
   @SubscribeMessage('ping')
-  handleMessage(client: any, data: any) {
+  handleMessage(client: Socket, data: any) {
     this.logger.log(`Message received from client id: ${client.id}`);
-    this.logger.debug(`Payload: ${data}`);
+    const { address } = JSON.parse(data);
+    client.join(address);
+
     return {
       event: 'pong',
       data,

@@ -4,9 +4,11 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import { ListenerService } from './listener/listener.service';
 
 async function bootstrap() {
   const logger = new Logger('Main');
+  const listner = new ListenerService();
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
     logger: ['error', 'debug', 'log', 'error', 'warn'],
@@ -46,6 +48,9 @@ async function bootstrap() {
   app.use(helmet());
 
   const PORT = process.env.PORT || 5111;
+
+  // Run listener
+  listner.watchContract();
 
   await app.listen(PORT, () => {
     logger.log(`Server running on http://localhost:${PORT}`);

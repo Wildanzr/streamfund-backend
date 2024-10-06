@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { NotifyModule } from './notify/notify.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -10,6 +11,13 @@ import { NotifyModule } from './notify/notify.module';
       envFilePath: '.env',
       isGlobal: true,
     }),
+    MongooseModule.forRoot(
+      process.env.MONGODB_URI || 'mongodb://localhost:27017/',
+      {
+        appName: 'streamfund',
+        dbName: 'streamfund',
+      },
+    ),
     NotifyModule,
   ],
   controllers: [AppController],

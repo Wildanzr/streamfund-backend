@@ -10,16 +10,13 @@ import {
 } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
-import { NotifyService } from './notify.service';
-import { ListenDTO, WsReturnDTO } from './dto/listen.dto';
+import { WsReturnDTO } from './dto/listen.dto';
 
 @WebSocketGateway()
 export class NotifyGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private readonly logger = new Logger(NotifyGateway.name);
-  // private readonly notifyService = new NotifyService();
-  constructor(private readonly notifyService: NotifyService) {}
 
   @WebSocketServer() io: Server;
 
@@ -69,12 +66,12 @@ export class NotifyGateway
   }
 
   @SubscribeMessage('listen-support')
-  async listenNotification(
-    client: Socket,
-    data: string,
-  ): Promise<WsResponse<WsReturnDTO>> {
-    const payload = JSON.parse(data) as ListenDTO;
-    if (!payload.address) {
+  async listenNotification(client: Socket): Promise<WsResponse<WsReturnDTO>> {
+    const query = client.handshake.query;
+    const streamkey = query['streamkey'];
+    console.log('streamkey', streamkey);
+
+    if (!streamkey) {
       return {
         event: 'error',
         data: {
@@ -84,15 +81,14 @@ export class NotifyGateway
       };
     }
 
-    console.log('payload', payload);
-    client.join(payload.address);
+    client.join('0x20047D546F34DC8A58F8DA13fa22143B4fC5404a');
 
     return {
       event: 'support-init',
       data: {
         message: "You're now connected to the support channel",
         data: {
-          address: payload.address,
+          address: '0x20047D546F34DC8A58F8DA13fa22143B4fC5404a',
         },
       },
     };

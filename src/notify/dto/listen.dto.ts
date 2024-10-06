@@ -10,6 +10,7 @@ export class ListenDTO {
 export class ListenResultDTO {
   from: string;
   to: string;
+  message: string;
   amount: string;
   symbol: string;
 }

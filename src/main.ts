@@ -4,8 +4,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
-import { ListenerService } from './listener/listener.service';
-import { QueuemanagerService } from './queuemanager/queuemanager.service';
+import { NotifyService } from './notify/notify.service';
 
 async function bootstrap() {
   const logger = new Logger('Main');
@@ -13,8 +12,6 @@ async function bootstrap() {
     bufferLogs: true,
     logger: ['error', 'debug', 'log', 'error', 'warn'],
   });
-  const queueService = app.get(QueuemanagerService);
-  const listner = new ListenerService(queueService);
 
   // ValidationPipe
   app.useGlobalPipes(
@@ -49,10 +46,11 @@ async function bootstrap() {
   // Helmet
   app.use(helmet());
 
-  const PORT = process.env.PORT || 5111;
+  // Watch for contract events
+  const notifyService = app.get(NotifyService);
+  notifyService.watchContract();
 
-  // Run listener
-  listner.watchContract();
+  const PORT = process.env.PORT || 5111;
 
   await app.listen(PORT, () => {
     logger.log(`Server running on http://localhost:${PORT}`);

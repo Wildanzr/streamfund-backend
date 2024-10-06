@@ -15,6 +15,8 @@ export class NotifyGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private readonly logger = new Logger(NotifyGateway.name);
+  // private readonly notifyService = new NotifyService();
+  constructor() {}
 
   @WebSocketServer() io: Server;
 

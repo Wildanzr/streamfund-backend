@@ -11,6 +11,7 @@ import { ContractsService } from './contracts.service';
 import { SuccessResponseDTO } from 'src/lib/dto/response.dto';
 import { RegenerateDTO } from './dto/regenerate.dto';
 import { ApiOperation } from '@nestjs/swagger';
+import { QueryStreamerDTO } from './dto/query.dto';
 
 @Controller('contracts')
 export class ContractsController {
@@ -22,9 +23,9 @@ export class ContractsController {
     summary: "Get streamer's details",
   })
   async getStreamer(
-    @Query('address') address: string,
+    @Query() query: QueryStreamerDTO,
   ): Promise<SuccessResponseDTO> {
-    const data = await this.contractsService.getStreamerByAddress(address);
+    const data = await this.contractsService.getStreamerByAddress(query);
     const streamer = data ? [data] : [];
 
     return {

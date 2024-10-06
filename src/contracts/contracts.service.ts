@@ -10,6 +10,7 @@ import { Streamer, StreamerDocument } from 'src/schema/streamer.schema';
 import { Support, SupportDocument } from 'src/schema/support.schema';
 import { Token, TokenDocument } from 'src/schema/token.schema';
 import { RegenerateDTO } from './dto/regenerate.dto';
+import { QueryStreamerDTO } from './dto/query.dto';
 
 @Injectable()
 export class ContractsService {
@@ -22,14 +23,33 @@ export class ContractsService {
   ) {}
 
   async getStreamerByAddress(
-    address: string,
+    query: QueryStreamerDTO,
   ): Promise<StreamerDocument | null> {
     try {
+      await this.isStreamerExist(query.q);
+      const { q, limit, page, sort = 'desc' } = query;
+      const skipAmount = (page - 1) * limit;
+
+      const sortOptions = {
+        creted_at: sort === 'desc' ? 1 : -1,
+      };
       const streamer = await this.streamerModel
         .findOne({
-          address,
+          address: q,
         })
-        .select('_id address streamkey')
+        .select('_id address streamkey supports')
+        .populate({
+          path: 'supports',
+          options: {
+            sort: sortOptions,
+            skip: skipAmount,
+            limit,
+          },
+          populate: {
+            path: 'token',
+            select: '_id symbol logo decimal',
+          },
+        })
         .exec();
 
       return streamer;
@@ -41,17 +61,7 @@ export class ContractsService {
 
   async regenerateStreamKey(body: RegenerateDTO): Promise<string> {
     try {
-      const streamer = await this.streamerModel
-        .findOne({
-          address: body.address,
-        })
-        .select('_id')
-        .exec();
-
-      if (!streamer) {
-        throw new NotFoundException('Streamer not found');
-      }
-
+      await this.isStreamerExist(body.address);
       const newKey = customNanoid();
       await this.streamerModel.findOneAndUpdate(
         { address: body.address },
@@ -66,6 +76,25 @@ export class ContractsService {
   }
 
   // Private methods
+  private async isStreamerExist(address: string): Promise<boolean> {
+    try {
+      const streamer = await this.streamerModel
+        .findOne({
+          address,
+        })
+        .select('_id')
+        .exec();
+
+      if (!streamer) {
+        throw new NotFoundException('Streamer not found');
+      }
+
+      return true;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
+  }
 
   // Webhook methods
   async whtokenAdded(

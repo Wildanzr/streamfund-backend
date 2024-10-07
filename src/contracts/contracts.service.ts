@@ -108,6 +108,26 @@ export class ContractsService {
     }
   }
 
+  async getStreamerAddressByStreamkey(streamkey: string): Promise<string> {
+    try {
+      const streamer = await this.streamerModel
+        .findOne({
+          streamkey,
+        })
+        .select('address')
+        .exec();
+
+      if (!streamer) {
+        throw new NotFoundException('Streamer not found');
+      }
+
+      return streamer.address;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
+  }
+
   // Private methods
   private async isStreamerExist(address: string): Promise<boolean> {
     try {

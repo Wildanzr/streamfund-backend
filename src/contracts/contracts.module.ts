@@ -16,5 +16,6 @@ import { Token, TokenSchema } from 'src/schema/token.schema';
   ],
   controllers: [ContractsController],
   providers: [ContractsService],
+  exports: [ContractsService],
 })
 export class ContractsModule {}

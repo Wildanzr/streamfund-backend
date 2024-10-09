@@ -6,6 +6,7 @@ import { NotifyGateway } from './notify.gateway';
 import { ListenResultDTO } from './dto/listen.dto';
 import { EventSupportReceived, EventTokenAdded } from './dto/events.dto';
 import { ContractsService } from 'src/contracts/contracts.service';
+import { StreamService } from 'src/stream/stream.service';
 
 class Streamer {
   messages: ListenResultDTO[];
@@ -25,8 +26,8 @@ class Streamer {
       const msg = this.messages.shift();
       // Sending the message through websocket
       this.sendThroughWebsocket(msg!);
-      // delay for 5 seconds
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      // delay for 20 seconds
+      await new Promise((resolve) => setTimeout(resolve, 20000));
     }
     this.stop();
   }
@@ -67,6 +68,7 @@ export class NotifyService {
   constructor(
     private readonly notifyGateway: NotifyGateway,
     private readonly contractService: ContractsService,
+    private readonly streamService: StreamService,
   ) {}
 
   watchContract() {
@@ -112,6 +114,7 @@ export class NotifyService {
               const { streamer } = log.args;
               this.logger.log(`Streamer ${streamer} registered`);
               await this.contractService.whstreamerRegistered(streamer);
+              await this.streamService.initQRConfig(streamer);
               break;
             case 'SupportReceived':
               const { amount, message, streamer: to, from, token } = log.args;

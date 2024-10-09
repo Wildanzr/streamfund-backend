@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { NotifyModule } from './notify/notify.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ContractsModule } from './contracts/contracts.module';
+import { StreamModule } from './stream/stream.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ContractsModule } from './contracts/contracts.module';
     ),
     NotifyModule,
     ContractsModule,
+    StreamModule,
   ],
   controllers: [AppController],
   providers: [AppService],

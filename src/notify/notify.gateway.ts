@@ -68,12 +68,48 @@ export class NotifyGateway
   }
 
   @SubscribeMessage('ping')
-  handleMessage(client: Socket, data: any) {
+  async handleMessage(
+    client: Socket,
+    data: any,
+  ): Promise<WsResponse<WsReturnDTO>> {
     this.logger.log(`Message received from client id: ${client.id}`);
 
     return {
       event: 'pong',
-      data,
+      data: {
+        message: 'This is pong',
+        data: {
+          name: "I'm a server",
+          age: 20,
+        },
+      },
+    };
+  }
+
+  @SubscribeMessage('test')
+  async handleTest(
+    client: Socket,
+    data: any,
+  ): Promise<WsResponse<WsReturnDTO>> {
+    this.logger.log(`Message received from client id: ${client.id}`);
+
+    this.io.to('0x20047D546F34DC8A58F8DA13fa22143B4fC5404a').emit('support', {
+      from: '0x20047D546F34DC8A58F8DA13fa22143B4fC5404a',
+      to: '0x20047D546F34DC8A58F8DA13fa22143B4fC5404a',
+      message: 'This is a test message',
+      amount: '100',
+      symbol: 'ETH',
+    });
+
+    return {
+      event: 'pong',
+      data: {
+        message: 'This is pong',
+        data: {
+          name: "I'm a server",
+          age: 20,
+        },
+      },
     };
   }
 
@@ -83,9 +119,6 @@ export class NotifyGateway
     const streamkey = query['streamkey'] as string;
     const address =
       await this.contractsService.getStreamerAddressByStreamkey(streamkey);
-
-    console.log('address', address);
-
     if (!address) {
       return {
         event: 'support-init',

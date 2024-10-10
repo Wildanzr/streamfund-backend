@@ -7,6 +7,7 @@ import { ContractsService } from 'src/contracts/contracts.service';
 import { UpdateQRDTO } from './dto/update-qr.dto';
 import { Streamer } from 'src/schema/streamer.schema';
 import { MQConfig } from 'src/schema/mq-config.schema';
+import { UpdateMQDTO } from './dto/update-mq.dto';
 
 @Injectable()
 export class StreamService {
@@ -67,17 +68,78 @@ export class StreamService {
     }
   }
 
+  async getMQConfig(query: QueryStreamkeyDTO) {
+    try {
+      const streamer = await this.streamerModel.findOne({
+        streamkey: query.streamkey,
+      });
+
+      const mqConfig = await this.mqConfigModel
+        .findOne({
+          streamer: streamer._id,
+        })
+        .populate({
+          path: 'streamer',
+          select: '_id address',
+        })
+        .exec();
+
+      return mqConfig;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
+  }
+
+  async updateMQConfig(
+    query: QueryStreamkeyDTO,
+    body: UpdateMQDTO,
+  ): Promise<string | null> {
+    try {
+      const streamer = await this.streamerModel.findOne({
+        streamkey: query.streamkey,
+      });
+
+      const mqConfig = await this.mqConfigModel.findOneAndUpdate(
+        {
+          streamer: streamer._id,
+        },
+        body,
+        { new: true },
+      );
+
+      return mqConfig._id.toString();
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
+  }
+
   // Initializer
-  async initQRConfig(
+  async initConfigs(
     address: string,
     session: mongoose.ClientSession | null = null,
-  ): Promise<QRConfig> {
+  ) {
     try {
       const streamer = await this.streamerModel.findOne({
         address,
       });
 
-      const config = await this.qrConfigModel.create(
+      await this.mqConfigModel.create(
+        [
+          {
+            backgroundColor: '#ffffff',
+            font: 'font-play',
+            textSize: '20',
+            streamer: streamer._id,
+            text: 'Hello World',
+            textColor: '#000000',
+          },
+        ],
+        { session },
+      );
+
+      await this.qrConfigModel.create(
         [
           {
             bgColor: '#ffffff',
@@ -90,39 +152,7 @@ export class StreamService {
         ],
         { session },
       );
-      this.logger.log(`QR config created for streamer ${streamer}`);
-      return config[0];
-    } catch (error) {
-      this.logger.error(error.message, error.stack);
-      throw error;
-    }
-  }
-
-  async initMQConfig(
-    address: string,
-    session: mongoose.ClientSession | null = null,
-  ): Promise<MQConfig> {
-    try {
-      const streamer = await this.streamerModel.findOne({
-        address,
-      });
-
-      const config = await this.mqConfigModel.create(
-        [
-          {
-            backgroundColor: '#ffffff',
-            font: 'font-play',
-            fontSize: '20',
-            streamer: streamer._id,
-            text: 'Hello World',
-            textColor: '#000000',
-          },
-        ],
-        { session },
-      );
-
-      this.logger.log(`MQ config created for streamer ${streamer}`);
-      return config[0];
+      this.logger.log(`Config created for streamer ${streamer}`);
     } catch (error) {
       this.logger.error(error.message, error.stack);
       throw error;

@@ -32,7 +32,7 @@ export class UpdateMQDTO {
   })
   @IsNotEmpty()
   @IsString()
-  fontSize: string;
+  textSize: string;
 
   @ApiProperty({
     description: 'Font',

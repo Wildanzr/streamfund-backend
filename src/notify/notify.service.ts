@@ -74,7 +74,7 @@ export class NotifyService {
   watchContract() {
     this.logger.log('Watching for events...');
     this.client.watchEvent({
-      address: '0x538E2488c3189A9dd068523cbB94d1d4d0805456',
+      address: '0x4754157b037E0526CA5F1F0257da6322d4D0Ba28',
       events: [
         parseAbiItem(
           'event SupportReceived(address indexed streamer, address from, address token, uint256 amount, string message)',
@@ -114,7 +114,7 @@ export class NotifyService {
               const { streamer } = log.args;
               this.logger.log(`Streamer ${streamer} registered`);
               await this.contractService.whstreamerRegistered(streamer);
-              await this.streamService.initQRConfig(streamer);
+              await this.streamService.initConfigs(streamer);
               break;
             case 'SupportReceived':
               const { amount, message, streamer: to, from, token } = log.args;

@@ -1,7 +1,13 @@
+// backgroundColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+//   textColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+//   textSize: z.number(),
+//   font: z.string(),
+//   sound: z.string(),
+
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateMQDTO {
+export class UpdateAlertDTO {
   @ApiProperty({
     description: 'Background color',
     required: true,
@@ -35,10 +41,10 @@ export class UpdateMQDTO {
   textSize: string;
 
   @ApiProperty({
-    description: 'Text',
+    description: 'Sound',
     required: true,
   })
   @IsNotEmpty()
   @IsString()
-  text: string;
+  sound: string;
 }

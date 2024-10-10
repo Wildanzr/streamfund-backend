@@ -15,6 +15,7 @@ import { QueryStreamkeyDTO } from './dto/query-stream-key.dto';
 import { SuccessResponseDTO } from 'src/lib/dto/response.dto';
 import { UpdateQRDTO } from './dto/update-qr.dto';
 import { UpdateMQDTO } from './dto/update-mq.dto';
+import { UpdateAlertDTO } from './dto/update-alert.dto';
 
 @Controller('stream')
 @UseGuards(HmacguardGuard)
@@ -96,6 +97,47 @@ export class StreamController {
     return {
       success: true,
       message: 'MQ configuration updated successfully',
+      statusCode: HttpStatus.OK,
+      data: {
+        id,
+      },
+    };
+  }
+
+  @Get('/alert')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get alert configuration',
+  })
+  async getAlertConfig(
+    @Query() query: QueryStreamkeyDTO,
+  ): Promise<SuccessResponseDTO> {
+    const config = await this.streamService.getAlertConfig(query);
+
+    return {
+      success: true,
+      message: 'Alert configuration fetched successfully',
+      statusCode: HttpStatus.OK,
+      data: {
+        config,
+      },
+    };
+  }
+
+  @Put('/alert')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Update alert configuration',
+  })
+  async updateAlertConfig(
+    @Query() query: QueryStreamkeyDTO,
+    @Body() body: UpdateAlertDTO,
+  ): Promise<SuccessResponseDTO> {
+    const id = await this.streamService.updateAlertConfig(query, body);
+
+    return {
+      success: true,
+      message: 'Alert configuration updated successfully',
       statusCode: HttpStatus.OK,
       data: {
         id,

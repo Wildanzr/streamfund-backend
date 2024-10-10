@@ -8,6 +8,7 @@ import { Streamer, StreamerSchema } from 'src/schema/streamer.schema';
 import { Support, SupportSchema } from 'src/schema/support.schema';
 import { Token, TokenSchema } from 'src/schema/token.schema';
 import { MQConfig, MQConfigSchema } from 'src/schema/mq-config.schema';
+import { AlertConfig, AlertConfigSchema } from 'src/schema/alert-config.schema';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { MQConfig, MQConfigSchema } from 'src/schema/mq-config.schema';
       { name: Streamer.name, schema: StreamerSchema },
       { name: Support.name, schema: SupportSchema },
       { name: Token.name, schema: TokenSchema },
+      { name: AlertConfig.name, schema: AlertConfigSchema },
     ]),
   ],
   controllers: [StreamController],

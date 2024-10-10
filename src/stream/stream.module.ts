@@ -7,11 +7,13 @@ import { ContractsService } from 'src/contracts/contracts.service';
 import { Streamer, StreamerSchema } from 'src/schema/streamer.schema';
 import { Support, SupportSchema } from 'src/schema/support.schema';
 import { Token, TokenSchema } from 'src/schema/token.schema';
+import { MQConfig, MQConfigSchema } from 'src/schema/mq-config.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: QRConfig.name, schema: QRConfigSchema },
+      { name: MQConfig.name, schema: MQConfigSchema },
       { name: Streamer.name, schema: StreamerSchema },
       { name: Support.name, schema: SupportSchema },
       { name: Token.name, schema: TokenSchema },

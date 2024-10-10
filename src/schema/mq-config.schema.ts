@@ -4,36 +4,36 @@ import { CreateUpdate } from './create-update.schema';
 import { Streamer } from './streamer.schema';
 
 @Schema()
-export class QRConfig extends CreateUpdate {
+export class MQConfig extends CreateUpdate {
   @Prop({
     required: true,
-    type: Number,
+    type: String,
   })
-  quietZone: number;
+  backgroundColor: string;
 
   @Prop({
     required: true,
     type: String,
   })
-  bgColor: string;
+  textColor: string;
 
   @Prop({
     required: true,
     type: String,
   })
-  fgColor: string;
+  font: string;
 
   @Prop({
     required: true,
     type: String,
   })
-  level: string;
+  textSize: string;
 
   @Prop({
     required: true,
     type: String,
   })
-  style: string;
+  text: string;
 
   @Prop({
     required: true,
@@ -43,5 +43,5 @@ export class QRConfig extends CreateUpdate {
   streamer: Streamer;
 }
 
-export type QRConfigDocument = HydratedDocument<QRConfig>;
-export const QRConfigSchema = SchemaFactory.createForClass(QRConfig);
+export type MQConfigDocument = HydratedDocument<MQConfig>;
+export const MQConfigSchema = SchemaFactory.createForClass(MQConfig);

@@ -94,3 +94,4 @@ export class HmacguardGuard implements CanActivate {
     return localSignature === signature;
   }
 }
+// 1728507661|PUT|http://localhost:5111/stream/qr?streamkey=VVdG5tfI5Kgm8E6ZpyG9EGAOXC40i0IgtPSV6fpHjMWPNi20vW|{"quietZone":20,"bgColor":"#ffffff","fgColor":"#00ff9f","level":"H","style":"squares"}

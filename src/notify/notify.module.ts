@@ -8,6 +8,7 @@ import { Token, TokenSchema } from 'src/schema/token.schema';
 import { ContractsService } from 'src/contracts/contracts.service';
 import { StreamService } from 'src/stream/stream.service';
 import { QRConfig, QRConfigSchema } from 'src/schema/qr-config.schema';
+import { MQConfig, MQConfigSchema } from 'src/schema/mq-config.schema';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { QRConfig, QRConfigSchema } from 'src/schema/qr-config.schema';
       { name: Support.name, schema: SupportSchema },
       { name: Token.name, schema: TokenSchema },
       { name: QRConfig.name, schema: QRConfigSchema },
+      { name: MQConfig.name, schema: MQConfigSchema },
     ]),
   ],
   providers: [NotifyGateway, NotifyService, ContractsService, StreamService],

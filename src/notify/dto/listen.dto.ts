@@ -19,3 +19,14 @@ export class WsReturnDTO {
   message: string;
   data: Record<string, any>;
 }
+
+export class TestAlertDTO {
+  to: string;
+}
+export class SupportDTO {
+  from: string;
+  amount: number;
+  decimals: number;
+  symbol: string;
+  message: string;
+}

@@ -3,17 +3,17 @@ import { Server } from 'socket.io';
 import { createPublicClient, http, parseAbiItem } from 'viem';
 import { baseSepolia } from 'viem/chains';
 import { NotifyGateway } from './notify.gateway';
-import { ListenResultDTO } from './dto/listen.dto';
+import { SupportDTO, WsReturnDTO } from './dto/listen.dto';
 import { EventSupportReceived, EventTokenAdded } from './dto/events.dto';
 import { ContractsService } from 'src/contracts/contracts.service';
 import { StreamService } from 'src/stream/stream.service';
 
 class Streamer {
-  messages: ListenResultDTO[];
+  messages: SupportDTO[];
 
   constructor(
     public streamId: string,
-    message: ListenResultDTO,
+    message: SupportDTO,
     public queue: Map<string, Streamer>,
     private io: Server,
   ) {
@@ -41,15 +41,20 @@ class Streamer {
     this.queue.delete(this.streamId);
   }
 
-  async addMessage(message: ListenResultDTO) {
+  async addMessage(message: SupportDTO) {
     this.messages.push(message);
   }
 
-  sendThroughWebsocket(message: ListenResultDTO) {
+  sendThroughWebsocket(message: SupportDTO) {
     console.log(
       `Stream ${this.streamId}: ${message.amount} - ${message.symbol}`,
     );
-    this.io.to(this.streamId).emit('support', message);
+
+    const msg: WsReturnDTO = {
+      data: message,
+      message: 'You have received a support',
+    };
+    this.io.to(this.streamId).emit('support', msg);
   }
 }
 
@@ -119,13 +124,16 @@ export class NotifyService {
             case 'SupportReceived':
               const { amount, message, streamer: to, from, token } = log.args;
               this.logger.log(`Support received by ${to}`);
-              this.addNotification(to, {
-                amount: amount.toString(),
+              const tokenInfo =
+                await this.contractService.whgetTokenByAddress(token);
+              const msgStream: SupportDTO = {
+                amount: Number(amount),
                 from,
-                symbol: token,
-                to,
                 message,
-              });
+                symbol: tokenInfo.symbol,
+                decimals: tokenInfo.decimal,
+              };
+              this.addNotification(to, msgStream);
               const newSupport: EventSupportReceived = {
                 amount: Number(amount),
                 from,
@@ -145,7 +153,7 @@ export class NotifyService {
     });
   }
 
-  async addNotification(streamId: string, message: ListenResultDTO) {
+  async addNotification(streamId: string, message: SupportDTO) {
     if (!this.queue.has(streamId)) {
       const streamer = new Streamer(
         streamId,

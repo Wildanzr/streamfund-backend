@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Logger } from '@nestjs/common';
 import {
   OnGatewayConnection,
@@ -10,7 +11,7 @@ import {
 } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
-import { WsReturnDTO } from './dto/listen.dto';
+import { SupportDTO, TestAlertDTO, WsReturnDTO } from './dto/listen.dto';
 import { ContractsService } from 'src/contracts/contracts.service';
 
 @WebSocketGateway({ cors: true })
@@ -70,7 +71,7 @@ export class NotifyGateway
   @SubscribeMessage('ping')
   async handleMessage(
     client: Socket,
-    data: any,
+    _data: any,
   ): Promise<WsResponse<WsReturnDTO>> {
     this.logger.log(`Message received from client id: ${client.id}`);
 
@@ -92,14 +93,21 @@ export class NotifyGateway
     data: any,
   ): Promise<WsResponse<WsReturnDTO>> {
     this.logger.log(`Message received from client id: ${client.id}`);
+    const parsed = JSON.parse(data) as TestAlertDTO;
 
-    this.io.to('0x20047D546F34DC8A58F8DA13fa22143B4fC5404a').emit('support', {
-      from: '0x20047D546F34DC8A58F8DA13fa22143B4fC5404a',
-      to: '0x20047D546F34DC8A58F8DA13fa22143B4fC5404a',
-      message: 'This is a test message',
-      amount: '100',
+    const message: SupportDTO = {
+      from: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+      amount: 1,
+      decimals: 18,
       symbol: 'ETH',
-    });
+      message:
+        'This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message ',
+    };
+    const msg: WsReturnDTO = {
+      data: message,
+      message: 'This is test message',
+    };
+    this.io.to(parsed.to).emit('support', msg);
 
     return {
       event: 'pong',
@@ -107,7 +115,33 @@ export class NotifyGateway
         message: 'This is pong',
         data: {
           name: "I'm a server",
-          age: 20,
+        },
+      },
+    };
+  }
+
+  @SubscribeMessage('reload')
+  async handleReload(
+    client: Socket,
+    data: any,
+  ): Promise<WsResponse<WsReturnDTO>> {
+    this.logger.log(`Message received from client id: ${client.id}`);
+    const parsed = JSON.parse(data) as TestAlertDTO;
+
+    console.log('Reloading');
+    this.io.to(parsed.to).emit('reload', {
+      message: 'Requesting to reload',
+      data: {
+        name: "I'm a server",
+      },
+    });
+
+    return {
+      event: 'reload',
+      data: {
+        message: 'Requesting to reload',
+        data: {
+          name: "I'm a server",
         },
       },
     };

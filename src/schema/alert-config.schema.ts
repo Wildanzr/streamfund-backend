@@ -15,7 +15,13 @@ export class AlertConfig extends CreateUpdate {
     required: true,
     type: String,
   })
-  textColor: string;
+  mainColor: string;
+
+  @Prop({
+    required: true,
+    type: String,
+  })
+  secondColor: string;
 
   @Prop({
     required: true,
@@ -34,6 +40,12 @@ export class AlertConfig extends CreateUpdate {
     type: String,
   })
   sound: string;
+
+  @Prop({
+    required: true,
+    type: String,
+  })
+  effect: string;
 
   @Prop({
     required: true,

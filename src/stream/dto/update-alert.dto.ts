@@ -17,12 +17,20 @@ export class UpdateAlertDTO {
   backgroundColor: string;
 
   @ApiProperty({
-    description: 'Text color',
+    description: 'Main text color',
     required: true,
   })
   @IsNotEmpty()
   @IsString()
-  textColor: string;
+  mainColor: string;
+
+  @ApiProperty({
+    description: 'Second text color',
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsString()
+  secondColor: string;
 
   @ApiProperty({
     description: 'Font family',
@@ -47,4 +55,12 @@ export class UpdateAlertDTO {
   @IsNotEmpty()
   @IsString()
   sound: string;
+
+  @ApiProperty({
+    description: 'Text effect',
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsString()
+  effect: string;
 }

@@ -227,10 +227,12 @@ export class StreamService {
           [
             {
               backgroundColor: '#ffffff',
-              textColor: '#000000',
+              mainColor: '#000000',
+              secondColor: '#ff0000',
               font: 'font-play',
               textSize: '20',
-              sound: 'default',
+              effect: 'wiggle',
+              sound: 'dun',
               streamer: streamer._id,
             },
           ],

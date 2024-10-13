@@ -97,11 +97,11 @@ export class NotifyGateway
 
     const message: SupportDTO = {
       from: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-      amount: 1,
-      decimals: 18,
-      symbol: 'ETH',
+      amount: 12400000,
+      decimals: 6,
+      symbol: 'USDC',
       message:
-        'This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message ',
+        'This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message',
     };
     const msg: WsReturnDTO = {
       data: message,

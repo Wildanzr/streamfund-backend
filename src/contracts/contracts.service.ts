@@ -108,6 +108,26 @@ export class ContractsService {
     }
   }
 
+  async checkAddress(address: string): Promise<boolean> {
+    try {
+      const streamer = await this.streamerModel
+        .findOne({
+          address,
+        })
+        .select('_id')
+        .exec();
+
+      if (!streamer) {
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
+  }
+
   async getStreamerAddressByStreamkey(streamkey: string): Promise<string> {
     try {
       const streamer = await this.streamerModel

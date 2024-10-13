@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Query,
   UseGuards,
@@ -54,6 +55,26 @@ export class ContractsController {
     return {
       success: true,
       message: 'Stream key fetched successfully',
+      statusCode: HttpStatus.OK,
+      data: {
+        valid,
+      },
+    };
+  }
+
+  @Get('/address/:address')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get address',
+  })
+  async getAddress(
+    @Param('address') address: string,
+  ): Promise<SuccessResponseDTO> {
+    const valid = await this.contractsService.checkAddress(address);
+
+    return {
+      success: true,
+      message: 'Address fetched successfully',
       statusCode: HttpStatus.OK,
       data: {
         valid,

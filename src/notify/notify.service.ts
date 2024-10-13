@@ -79,7 +79,7 @@ export class NotifyService {
   watchContract() {
     this.logger.log('Watching for events...');
     this.client.watchEvent({
-      address: '0x4754157b037E0526CA5F1F0257da6322d4D0Ba28',
+      address: '0xe64557155c5c396648128b9BbF7D01883E14F428',
       events: [
         parseAbiItem(
           'event SupportReceived(address indexed streamer, address from, address token, uint256 amount, string message)',
@@ -92,63 +92,68 @@ export class NotifyService {
       ],
       onLogs: (logs) => {
         // make switch case for each event
-        logs.forEach(async (log) => {
-          switch (log.eventName) {
-            case 'TokenAdded':
-              const {
-                decimal,
-                priceFeed,
-                symbol,
-                tokenAddress: addedTokenAddr,
-              } = log.args;
-              this.logger.log(`New token added: ${symbol}`);
-              const newToken: EventTokenAdded = {
-                tokenAddress: addedTokenAddr,
-                priceFeed,
-                decimal,
-                symbol,
-              };
-              await this.contractService.whtokenAdded(newToken);
-              break;
-            case 'TokenRemoved':
-              const { tokenAddress: removedTokenAddr } = log.args;
-              this.logger.log(`Token ${removedTokenAddr} removed`);
-              await this.contractService.whtokenRemoved(removedTokenAddr);
-              break;
-            case 'StreamerRegistered':
-              const { streamer } = log.args;
-              this.logger.log(`Streamer ${streamer} registered`);
-              await this.contractService.whstreamerRegistered(streamer);
-              await this.streamService.initConfigs(streamer);
-              break;
-            case 'SupportReceived':
-              const { amount, message, streamer: to, from, token } = log.args;
-              this.logger.log(`Support received by ${to}`);
-              const tokenInfo =
-                await this.contractService.whgetTokenByAddress(token);
-              const msgStream: SupportDTO = {
-                amount: Number(amount),
-                from,
-                message,
-                symbol: tokenInfo.symbol,
-                decimals: tokenInfo.decimal,
-              };
-              this.addNotification(to, msgStream);
-              const newSupport: EventSupportReceived = {
-                amount: Number(amount),
-                from,
-                message,
-                token,
-                hash: log.transactionHash,
-                streamer: to,
-              };
-              await this.contractService.whsupportReceived(newSupport);
-              break;
-            default:
-              this.logger.log('Unknown event');
-              break;
-          }
-        });
+        try {
+          logs.forEach(async (log) => {
+            switch (log.eventName) {
+              case 'TokenAdded':
+                const {
+                  decimal,
+                  priceFeed,
+                  symbol,
+                  tokenAddress: addedTokenAddr,
+                } = log.args;
+                this.logger.log(`New token added: ${symbol}`);
+                const newToken: EventTokenAdded = {
+                  tokenAddress: addedTokenAddr,
+                  priceFeed,
+                  decimal,
+                  symbol,
+                };
+                await this.contractService.whtokenAdded(newToken);
+                break;
+              case 'TokenRemoved':
+                const { tokenAddress: removedTokenAddr } = log.args;
+                this.logger.log(`Token ${removedTokenAddr} removed`);
+                await this.contractService.whtokenRemoved(removedTokenAddr);
+                break;
+              case 'StreamerRegistered':
+                const { streamer } = log.args;
+                this.logger.log(`Streamer ${streamer} registered`);
+                await this.contractService.whstreamerRegistered(streamer);
+                await this.streamService.initConfigs(streamer);
+                await this.reloadUserPage(streamer);
+                break;
+              case 'SupportReceived':
+                const { amount, message, streamer: to, from, token } = log.args;
+                this.logger.log(`Support received by ${to}`);
+                const tokenInfo =
+                  await this.contractService.whgetTokenByAddress(token);
+                const msgStream: SupportDTO = {
+                  amount: Number(amount),
+                  from,
+                  message,
+                  symbol: tokenInfo.symbol,
+                  decimals: tokenInfo.decimal,
+                };
+                this.addNotification(to, msgStream);
+                const newSupport: EventSupportReceived = {
+                  amount: Number(amount),
+                  from,
+                  message,
+                  token,
+                  hash: log.transactionHash,
+                  streamer: to,
+                };
+                await this.contractService.whsupportReceived(newSupport);
+                break;
+              default:
+                this.logger.log('Unknown event');
+                break;
+            }
+          });
+        } catch (error) {
+          this.logger.error(error);
+        }
       },
     });
   }
@@ -166,5 +171,9 @@ export class NotifyService {
       const streamer = this.queue.get(streamId);
       streamer.addMessage(message);
     }
+  }
+
+  async reloadUserPage(address: string) {
+    this.notifyGateway.io.to(address).emit('reload');
   }
 }

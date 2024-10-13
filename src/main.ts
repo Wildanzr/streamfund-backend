@@ -24,8 +24,7 @@ async function bootstrap() {
 
   // CORS
   const options: CorsOptions = {
-    origin:
-      process.env.NODE_ENV === 'production' ? process.env.CORS_ORIGIN : '*',
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,

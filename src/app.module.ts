@@ -17,7 +17,7 @@ import { StreamModule } from './stream/stream.module';
       process.env.MONGODB_URI || 'mongodb://localhost:27017/',
       {
         appName: 'streamfund',
-        dbName: 'streamfund',
+        dbName: 'streamfund-v1',
       },
     ),
     NotifyModule,

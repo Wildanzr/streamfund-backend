@@ -88,22 +88,21 @@ export class NotifyService {
     private readonly streamService: StreamService,
   ) {}
 
+  // exclusive support
+  // live ads
+
   watchContract() {
     this.logger.log('Watching for events...');
     this.baseClient.watchEvent({
       address: '0xc180A51b23b245B3340bE4311C6b4a9dB908FEa9',
-      events: [
-        parseAbiItem('event Greeting(string greeting)'),
-      ],
+      events: [parseAbiItem('event Greeting(string greeting)')],
       onLogs: (logs) => {
         // make switch case for each event
         try {
           logs.forEach(async (log) => {
             switch (log.eventName) {
               case 'Greeting':
-                const {
-                  greeting
-                } = log.args;
+                const { greeting } = log.args;
                 this.logger.log(`Greeting on chain base received: ${greeting}`);
                 break;
               default:
@@ -119,19 +118,17 @@ export class NotifyService {
 
     this.scrollClient.watchEvent({
       address: '0x12526230d6b9fd74bab1238a2fb5e3f0d763b213',
-      events: [
-        parseAbiItem('event Greeting(string greeting)'),
-      ],
+      events: [parseAbiItem('event Greeting(string greeting)')],
       onLogs: (logs) => {
         // make switch case for each event
         try {
           logs.forEach(async (log) => {
             switch (log.eventName) {
               case 'Greeting':
-                const {
-                  greeting
-                } = log.args;
-                this.logger.log(`Greeting on chain scroll received: ${greeting}`);
+                const { greeting } = log.args;
+                this.logger.log(
+                  `Greeting on chain scroll received: ${greeting}`,
+                );
                 break;
               default:
                 this.logger.log('Unknown event');
@@ -146,19 +143,17 @@ export class NotifyService {
 
     this.sepoliaClient.watchEvent({
       address: '0x5A074f27025D4a7968A431e7aB1eAc402bbDD5D3',
-      events: [
-        parseAbiItem('event Greeting(string greeting)'),
-      ],
+      events: [parseAbiItem('event Greeting(string greeting)')],
       onLogs: (logs) => {
         // make switch case for each event
         try {
           logs.forEach(async (log) => {
             switch (log.eventName) {
               case 'Greeting':
-                const {
-                  greeting
-                } = log.args;
-                this.logger.log(`Greeting on chain sepolia received: ${greeting}`);
+                const { greeting } = log.args;
+                this.logger.log(
+                  `Greeting on chain sepolia received: ${greeting}`,
+                );
                 break;
               default:
                 this.logger.log('Unknown event');
@@ -169,7 +164,6 @@ export class NotifyService {
           this.logger.error(error);
         }
       },
-
     });
   }
 

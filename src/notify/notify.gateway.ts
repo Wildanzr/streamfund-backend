@@ -11,15 +11,19 @@ import {
 } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
-import { SupportDTO, TestAlertDTO, WsReturnDTO } from './dto/listen.dto';
+import {
+  SupportDTO,
+  SupportType,
+  TestAlertDTO,
+  WsReturnDTO,
+} from './dto/listen.dto';
 import { ContractsService } from 'src/contracts/contracts.service';
 
 @WebSocketGateway({ cors: true })
 export class NotifyGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(NotifyGateway.name);
-  constructor(private readonly contractsService: ContractsService) {}
+  constructor(private readonly contractsService: ContractsService) { }
 
   @WebSocketServer() io: Server;
 
@@ -102,6 +106,9 @@ export class NotifyGateway
       symbol: 'USDC',
       message:
         'This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message',
+      network: 'BASE',
+      ref_id: null,
+      type: SupportType.Normal,
     };
     const msg: WsReturnDTO = {
       data: message,

@@ -23,10 +23,21 @@ export class WsReturnDTO {
 export class TestAlertDTO {
   to: string;
 }
+
 export class SupportDTO {
   from: string;
+  network: string;
+  type: SupportType;
   amount: number;
   decimals: number;
   symbol: string;
   message: string;
+  ref_id: string | null;
+}
+
+export enum SupportType {
+  Unknown = 0,
+  Normal = 1,
+  Video = 2,
+  Ads = 3,
 }

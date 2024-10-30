@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Post,
   Put,
   Query,
   UseGuards,
@@ -20,7 +21,7 @@ import { UpdateAlertDTO } from './dto/update-alert.dto';
 @Controller('stream')
 @UseGuards(HmacguardGuard)
 export class StreamController {
-  constructor(private readonly streamService: StreamService) {}
+  constructor(private readonly streamService: StreamService) { }
 
   @Get('/qr')
   @HttpCode(HttpStatus.OK)
@@ -142,6 +143,16 @@ export class StreamController {
       data: {
         id,
       },
+    };
+  }
+
+  @Post('test-video')
+  @HttpCode(HttpStatus.OK)
+  async testVideoNotification(@Query() query: QueryStreamkeyDTO) {
+    return {
+      success: true,
+      message: 'Video alert test has been queued',
+      statusCode: HttpStatus.OK,
     };
   }
 }

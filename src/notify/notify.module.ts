@@ -10,6 +10,7 @@ import { StreamService } from 'src/stream/stream.service';
 import { QRConfig, QRConfigSchema } from 'src/schema/qr-config.schema';
 import { MQConfig, MQConfigSchema } from 'src/schema/mq-config.schema';
 import { AlertConfig, AlertConfigSchema } from 'src/schema/alert-config.schema';
+import { SupportNotificationQueue } from './support-notification-queue';
 
 @Module({
   imports: [
@@ -22,7 +23,17 @@ import { AlertConfig, AlertConfigSchema } from 'src/schema/alert-config.schema';
       { name: AlertConfig.name, schema: AlertConfigSchema },
     ]),
   ],
-  providers: [NotifyGateway, NotifyService, ContractsService, StreamService],
+  providers: [
+    NotifyGateway,
+    NotifyService,
+    ContractsService,
+    StreamService,
+    SupportNotificationQueue,
+    {
+      provide: 'UNDEFINED',
+      useValue: undefined,
+    },
+  ],
   exports: [NotifyGateway],
 })
-export class NotifyModule {}
+export class NotifyModule { }

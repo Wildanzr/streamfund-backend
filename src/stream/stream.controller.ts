@@ -21,7 +21,7 @@ import { UpdateAlertDTO } from './dto/update-alert.dto';
 @Controller('stream')
 @UseGuards(HmacguardGuard)
 export class StreamController {
-  constructor(private readonly streamService: StreamService) { }
+  constructor(private readonly streamService: StreamService) {}
 
   @Get('/qr')
   @HttpCode(HttpStatus.OK)

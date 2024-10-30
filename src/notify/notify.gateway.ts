@@ -21,9 +21,10 @@ import { ContractsService } from 'src/contracts/contracts.service';
 
 @WebSocketGateway({ cors: true })
 export class NotifyGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   private readonly logger = new Logger(NotifyGateway.name);
-  constructor(private readonly contractsService: ContractsService) { }
+  constructor(private readonly contractsService: ContractsService) {}
 
   @WebSocketServer() io: Server;
 

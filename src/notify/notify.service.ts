@@ -8,61 +8,10 @@ import { EventSupportReceived, EventTokenAdded } from './dto/events.dto';
 import { ContractsService } from 'src/contracts/contracts.service';
 import { StreamService } from 'src/stream/stream.service';
 
-class Streamer {
-  messages: SupportDTO[];
-
-  constructor(
-    public streamId: string,
-    message: SupportDTO,
-    public queue: Map<string, Streamer>,
-    private io: Server,
-  ) {
-    this.messages = [message];
-    this.start();
-  }
-
-  async start() {
-    while (this.messages.length > 0) {
-      const msg = this.messages.shift();
-      // Sending the message through websocket
-      this.sendThroughWebsocket(msg!);
-      // delay for 20 seconds
-      await new Promise((resolve) => setTimeout(resolve, 20000));
-    }
-    this.stop();
-  }
-
-  async stop() {
-    const now = new Date();
-    // display in mm dd, yyyy hh:mm:ss format
-    console.log(
-      `Stream ${this.streamId} ended at ${now.toLocaleString('en-US')}`,
-    );
-    this.queue.delete(this.streamId);
-  }
-
-  async addMessage(message: SupportDTO) {
-    this.messages.push(message);
-  }
-
-  sendThroughWebsocket(message: SupportDTO) {
-    console.log(
-      `Stream ${this.streamId}: ${message.amount} - ${message.symbol}`,
-    );
-
-    const msg: WsReturnDTO = {
-      data: message,
-      message: 'You have received a support',
-    };
-    this.io.to(this.streamId).emit('support', msg);
-  }
-}
-
 @Injectable()
 export class NotifyService {
   private readonly logger = new Logger(NotifyService.name);
 
-  private queue = new Map<string, Streamer>();
   private readonly baseClient = createPublicClient({
     chain: baseSepolia,
     transport: http(
@@ -86,7 +35,7 @@ export class NotifyService {
     private readonly notifyGateway: NotifyGateway,
     private readonly contractService: ContractsService,
     private readonly streamService: StreamService,
-  ) {}
+  ) { }
 
   // exclusive support
   // live ads
@@ -165,21 +114,6 @@ export class NotifyService {
         }
       },
     });
-  }
-
-  async addNotification(streamId: string, message: SupportDTO) {
-    if (!this.queue.has(streamId)) {
-      const streamer = new Streamer(
-        streamId,
-        message,
-        this.queue,
-        this.notifyGateway.io,
-      );
-      this.queue.set(streamId, streamer);
-    } else {
-      const streamer = this.queue.get(streamId);
-      streamer.addMessage(message);
-    }
   }
 
   async reloadUserPage(address: string) {

@@ -9,6 +9,7 @@ import { Support, SupportSchema } from 'src/schema/support.schema';
 import { Token, TokenSchema } from 'src/schema/token.schema';
 import { MQConfig, MQConfigSchema } from 'src/schema/mq-config.schema';
 import { AlertConfig, AlertConfigSchema } from 'src/schema/alert-config.schema';
+import { NotifyModule } from 'src/notify/notify.module';
 
 @Module({
   imports: [
@@ -20,8 +21,9 @@ import { AlertConfig, AlertConfigSchema } from 'src/schema/alert-config.schema';
       { name: Token.name, schema: TokenSchema },
       { name: AlertConfig.name, schema: AlertConfigSchema },
     ]),
+    NotifyModule,
   ],
   controllers: [StreamController],
   providers: [StreamService, ContractsService],
 })
-export class StreamModule {}
+export class StreamModule { }

@@ -18,13 +18,20 @@ import {
   WsReturnDTO,
 } from './dto/listen.dto';
 import { ContractsService } from 'src/contracts/contracts.service';
+import { SupportNotificationQueue } from './support-notification-queue';
 
 @WebSocketGateway({ cors: true })
 export class NotifyGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(NotifyGateway.name);
-  constructor(private readonly contractsService: ContractsService) {}
+  constructor(
+    private readonly contractsService: ContractsService,
+    queue: SupportNotificationQueue,
+  ) {
+    queue.setNotifyCallback((streamKey, msg) => {
+      this.io.to(streamKey).emit('support', msg);
+    });
+  }
 
   @WebSocketServer() io: Server;
 
@@ -39,27 +46,24 @@ export class NotifyGateway
     this.logger.log(`Client id: ${client.id} connected`);
     this.logger.debug(`Number of connected clients: ${sockets.size}`);
     const query = client.handshake.query;
-    const streamkey = query['streamkey'] as string;
+    const streamKey = query['streamKey'] as string;
 
-    if (!streamkey) {
+    if (!streamKey) {
       this.io.to(client.id).emit('auth', {
         success: false,
         message: 'No stream key provided',
       });
-      setTimeout(() => {
-        client.disconnect();
-      }, 1000);
+      client.disconnect();
+      return;
     }
 
-    const isExist = await this.contractsService.checkStreamKey(streamkey);
+    const isExist = await this.contractsService.checkStreamKey(streamKey);
     if (!isExist) {
       this.io.to(client.id).emit('auth', {
         success: false,
         message: 'Invalid stream key',
       });
-      setTimeout(() => {
-        client.disconnect();
-      }, 1000);
+      client.disconnect();
     } else {
       this.io.to(client.id).emit('auth', {
         success: true,

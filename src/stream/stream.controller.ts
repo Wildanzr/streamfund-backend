@@ -17,11 +17,16 @@ import { SuccessResponseDTO } from 'src/lib/dto/response.dto';
 import { UpdateQRDTO } from './dto/update-qr.dto';
 import { UpdateMQDTO } from './dto/update-mq.dto';
 import { UpdateAlertDTO } from './dto/update-alert.dto';
+import { SupportNotificationQueue } from 'src/notify/support-notification-queue';
+import { SupportType } from 'src/notify/dto/listen.dto';
 
 @Controller('stream')
 @UseGuards(HmacguardGuard)
 export class StreamController {
-  constructor(private readonly streamService: StreamService) {}
+  constructor(
+    private readonly streamService: StreamService,
+    private notificationQueue: SupportNotificationQueue,
+  ) { }
 
   @Get('/qr')
   @HttpCode(HttpStatus.OK)
@@ -149,6 +154,17 @@ export class StreamController {
   @Post('test-video')
   @HttpCode(HttpStatus.OK)
   async testVideoNotification(@Query() query: QueryStreamkeyDTO) {
+    this.notificationQueue.addNotificationTest(query.streamkey, {
+      from: '0x2424242424242424242424',
+      type: SupportType.Video,
+      amount: 100,
+      decimals: 100.0,
+      message: 'This is a notification test',
+      network: 'BASE',
+      ref_id: null,
+      symbol: 'USDT',
+    });
+
     return {
       success: true,
       message: 'Video alert test has been queued',

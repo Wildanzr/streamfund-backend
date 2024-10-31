@@ -34,6 +34,6 @@ import { SupportNotificationQueue } from './support-notification-queue';
       useValue: undefined,
     },
   ],
-  exports: [NotifyGateway],
+  exports: [NotifyGateway, SupportNotificationQueue],
 })
-export class NotifyModule {}
+export class NotifyModule { }

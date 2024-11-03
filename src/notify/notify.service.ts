@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Server } from 'socket.io';
 import { createPublicClient, http, parseAbiItem } from 'viem';
-import { baseSepolia, scrollSepolia, sepolia } from 'viem/chains';
+import { baseSepolia } from 'viem/chains';
 import { NotifyGateway } from './notify.gateway';
-import { SupportDTO, WsReturnDTO } from './dto/listen.dto';
-import { EventSupportReceived, EventTokenAdded } from './dto/events.dto';
 import { ContractsService } from 'src/contracts/contracts.service';
 import { StreamService } from 'src/stream/stream.service';
+import { EventSupportReceived, EventTokenAdded } from './dto/events.dto';
+import { SupportDTO } from './dto/listen.dto';
+import { SupportNotificationQueue } from './support-notification-queue';
 
 @Injectable()
 export class NotifyService {
@@ -18,24 +18,13 @@ export class NotifyService {
       `https://base-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
     ),
   });
-  private readonly scrollClient = createPublicClient({
-    chain: scrollSepolia,
-    transport: http(
-      `https://scroll-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
-    ),
-  });
-  private readonly sepoliaClient = createPublicClient({
-    chain: sepolia,
-    transport: http(
-      `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
-    ),
-  });
 
   constructor(
     private readonly notifyGateway: NotifyGateway,
     private readonly contractService: ContractsService,
     private readonly streamService: StreamService,
-  ) { }
+    private readonly supportNotificationQueue: SupportNotificationQueue,
+  ) {}
 
   // exclusive support
   // live ads
@@ -43,66 +32,96 @@ export class NotifyService {
   watchContract() {
     this.logger.log('Watching for events...');
     this.baseClient.watchEvent({
-      address: '0xc180A51b23b245B3340bE4311C6b4a9dB908FEa9',
-      events: [parseAbiItem('event Greeting(string greeting)')],
+      address: '0x63B02bDcA6e209ff0A8dab2E3B244820aE8013f1',
+      events: [
+        parseAbiItem(
+          'event SupportReceived(address indexed streamer, address from, address token, uint256 amount, string message)',
+        ),
+        parseAbiItem(
+          'event LiveAdsReceived(address indexed streamer, address from, address token, uint256 amount, string message)',
+        ),
+        parseAbiItem(
+          'event VideoSupportReceived(address indexed streamer, address from, bytes32 videoId, uint256 amount, string message)',
+        ),
+        parseAbiItem('event StreamerRegistered(address streamer)'),
+        parseAbiItem(
+          'event StreamerUpdated(address streamer, uint256 liveAdsPrice)',
+        ),
+        parseAbiItem(
+          'event TokenAdded(address tokenAddress, address priceFeed, uint256 decimal, string symbol)',
+        ),
+        parseAbiItem('event TokenRemoved(address tokenAddress)'),
+        parseAbiItem(
+          'event VideoAdded(bytes32 id, string link, string thumbnail, uint256 price)',
+        ),
+        parseAbiItem('event VideoRemoved(bytes32 id)'),
+      ],
       onLogs: (logs) => {
-        // make switch case for each event
         try {
           logs.forEach(async (log) => {
             switch (log.eventName) {
-              case 'Greeting':
-                const { greeting } = log.args;
-                this.logger.log(`Greeting on chain base received: ${greeting}`);
+              case 'TokenAdded':
+                const {
+                  decimal,
+                  priceFeed,
+                  symbol,
+                  tokenAddress: addedTokenAddr,
+                } = log.args;
+                this.logger.log(`New token added: ${symbol}`);
+                const newToken: EventTokenAdded = {
+                  tokenAddress: addedTokenAddr,
+                  priceFeed,
+                  decimal: Number(decimal),
+                  symbol,
+                };
+                await this.contractService.whtokenAdded(newToken);
                 break;
-              default:
-                this.logger.log('Unknown event');
+              case 'TokenRemoved':
+                const { tokenAddress: removedTokenAddr } = log.args;
+                this.logger.log(`Token ${removedTokenAddr} removed`);
+                await this.contractService.whtokenRemoved(removedTokenAddr);
                 break;
-            }
-          });
-        } catch (error) {
-          this.logger.error(error);
-        }
-      },
-    });
-
-    this.scrollClient.watchEvent({
-      address: '0x12526230d6b9fd74bab1238a2fb5e3f0d763b213',
-      events: [parseAbiItem('event Greeting(string greeting)')],
-      onLogs: (logs) => {
-        // make switch case for each event
-        try {
-          logs.forEach(async (log) => {
-            switch (log.eventName) {
-              case 'Greeting':
-                const { greeting } = log.args;
-                this.logger.log(
-                  `Greeting on chain scroll received: ${greeting}`,
+              case 'StreamerRegistered':
+                const { streamer } = log.args;
+                this.logger.log(`Streamer ${streamer} registered`);
+                await this.contractService.whstreamerRegistered(streamer);
+                await this.streamService.initConfigs(streamer);
+                await this.reloadUserPage(streamer);
+                break;
+              case 'StreamerUpdated':
+                const { streamer: updatedStreamer, liveAdsPrice } = log.args;
+                this.logger.log(`Streamer ${updatedStreamer} updated`);
+                await this.contractService.whstreamerUpdated(
+                  updatedStreamer,
+                  Number(liveAdsPrice),
                 );
+                await this.reloadUserPage(updatedStreamer);
                 break;
-              default:
-                this.logger.log('Unknown event');
-                break;
-            }
-          });
-        } catch (error) {
-          this.logger.error(error);
-        }
-      },
-    });
-
-    this.sepoliaClient.watchEvent({
-      address: '0x5A074f27025D4a7968A431e7aB1eAc402bbDD5D3',
-      events: [parseAbiItem('event Greeting(string greeting)')],
-      onLogs: (logs) => {
-        // make switch case for each event
-        try {
-          logs.forEach(async (log) => {
-            switch (log.eventName) {
-              case 'Greeting':
-                const { greeting } = log.args;
-                this.logger.log(
-                  `Greeting on chain sepolia received: ${greeting}`,
-                );
+              case 'SupportReceived':
+                const { amount, message, streamer: to, from, token } = log.args;
+                this.logger.log(`Support received by ${to}`);
+                const tokenInfo =
+                  await this.contractService.whgetTokenByAddress(token);
+                const msgStream: SupportDTO = {
+                  amount: Number(amount),
+                  from,
+                  message,
+                  symbol: tokenInfo.symbol,
+                  decimals: tokenInfo.decimal,
+                  network: baseSepolia.name,
+                  ref_id: null,
+                  type: 1,
+                };
+                this.supportNotificationQueue.addNotification(to, msgStream);
+                const newSupport: EventSupportReceived = {
+                  amount: Number(amount),
+                  from,
+                  message,
+                  token,
+                  hash: log.transactionHash,
+                  streamer: to,
+                };
+                await this.contractService.whsupportReceived(newSupport);
                 break;
               default:
                 this.logger.log('Unknown event');

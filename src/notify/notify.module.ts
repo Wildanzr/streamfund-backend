@@ -36,4 +36,4 @@ import { SupportNotificationQueue } from './support-notification-queue';
   ],
   exports: [NotifyGateway, SupportNotificationQueue],
 })
-export class NotifyModule { }
+export class NotifyModule {}

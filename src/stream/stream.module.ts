@@ -26,4 +26,4 @@ import { NotifyModule } from 'src/notify/notify.module';
   controllers: [StreamController],
   providers: [StreamService, ContractsService],
 })
-export class StreamModule { }
+export class StreamModule {}

@@ -26,7 +26,7 @@ export class StreamController {
   constructor(
     private readonly streamService: StreamService,
     private notificationQueue: SupportNotificationQueue,
-  ) { }
+  ) {}
 
   @Get('/qr')
   @HttpCode(HttpStatus.OK)

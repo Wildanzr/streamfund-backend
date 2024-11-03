@@ -238,6 +238,24 @@ export class ContractsService {
     }
   }
 
+  async whstreamerUpdated(
+    address: string,
+    liveAdsPrice: number,
+    session: mongoose.ClientSession | null = null,
+  ): Promise<StreamerDocument> {
+    try {
+      const streamer = await this.streamerModel.findOneAndUpdate(
+        { address },
+        { liveAdsPrice },
+        { session, new: true },
+      );
+      this.logger.log('Successfully updated streamer');
+      return streamer;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+    }
+  }
+
   async whsupportReceived(
     payload: EventSupportReceived,
     session: mongoose.ClientSession | null = null,

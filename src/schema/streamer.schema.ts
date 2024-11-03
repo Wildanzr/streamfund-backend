@@ -21,6 +21,13 @@ export class Streamer extends CreateUpdate {
   address: string;
 
   @Prop({
+    required: false,
+    type: Number,
+    default: 0,
+  })
+  liveAdsPrice: number;
+
+  @Prop({
     required: true,
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Support' }],
   })

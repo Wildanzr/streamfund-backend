@@ -22,7 +22,8 @@ import { SupportNotificationQueue } from './support-notification-queue';
 
 @WebSocketGateway({ cors: true })
 export class NotifyGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   private readonly logger = new Logger(NotifyGateway.name);
   constructor(
     private readonly contractsService: ContractsService,

@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Streamer, StreamerSchema } from 'src/schema/streamer.schema';
 import { Support, SupportSchema } from 'src/schema/support.schema';
 import { Token, TokenSchema } from 'src/schema/token.schema';
+import { Video, VideoSchema } from 'src/schema/video.schema';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { Token, TokenSchema } from 'src/schema/token.schema';
       { name: Streamer.name, schema: StreamerSchema },
       { name: Support.name, schema: SupportSchema },
       { name: Token.name, schema: TokenSchema },
+      { name: Video.name, schema: VideoSchema },
     ]),
   ],
   controllers: [ContractsController],

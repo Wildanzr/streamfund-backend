@@ -239,7 +239,6 @@ export class StreamService {
           { session },
         ),
       ]);
-      this.logger.log(`Config created for streamer ${streamer}`);
     } catch (error) {
       this.logger.error(error.message, error.stack);
       throw error;

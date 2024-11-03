@@ -123,6 +123,53 @@ export class NotifyService {
                 };
                 await this.contractService.whsupportReceived(newSupport);
                 break;
+              case 'VideoAdded':
+                const { id, link, thumbnail, price } = log.args;
+                this.logger.log('Video added');
+                await this.contractService.whvideoAdded(
+                  id,
+                  link,
+                  thumbnail,
+                  Number(price),
+                );
+                break;
+              case 'VideoRemoved':
+                const { id: removedVideoId } = log.args;
+                this.logger.log('Video removed');
+                await this.contractService.whvideoRemoved(removedVideoId);
+                break;
+              case 'VideoSupportReceived':
+                const {
+                  amount: vAmount,
+                  from: vFrom,
+                  message: vMessage,
+                  streamer: vStreamer,
+                  videoId,
+                } = log.args;
+                console.log(
+                  'Video support received',
+                  vAmount,
+                  vFrom,
+                  vMessage,
+                  vStreamer,
+                  videoId,
+                );
+                break;
+              case 'LiveAdsReceived':
+                const {
+                  amount: laAmount,
+                  from: laFrom,
+                  message: laMessage,
+                  streamer: laStreamer,
+                } = log.args;
+                console.log(
+                  'Live ads received',
+                  laAmount,
+                  laFrom,
+                  laMessage,
+                  laStreamer,
+                );
+                break;
               default:
                 this.logger.log('Unknown event');
                 break;

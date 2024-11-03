@@ -11,6 +11,7 @@ import { QRConfig, QRConfigSchema } from 'src/schema/qr-config.schema';
 import { MQConfig, MQConfigSchema } from 'src/schema/mq-config.schema';
 import { AlertConfig, AlertConfigSchema } from 'src/schema/alert-config.schema';
 import { SupportNotificationQueue } from './support-notification-queue';
+import { Video, VideoSchema } from 'src/schema/video.schema';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { SupportNotificationQueue } from './support-notification-queue';
       { name: Streamer.name, schema: StreamerSchema },
       { name: Support.name, schema: SupportSchema },
       { name: Token.name, schema: TokenSchema },
+      { name: Video.name, schema: VideoSchema },
       { name: QRConfig.name, schema: QRConfigSchema },
       { name: MQConfig.name, schema: MQConfigSchema },
       { name: AlertConfig.name, schema: AlertConfigSchema },

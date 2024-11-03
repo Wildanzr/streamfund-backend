@@ -11,6 +11,7 @@ import { Support, SupportDocument } from 'src/schema/support.schema';
 import { Token, TokenDocument } from 'src/schema/token.schema';
 import { RegenerateDTO } from './dto/regenerate.dto';
 import { QueryStreamerDTO } from './dto/query.dto';
+import { Video } from 'src/schema/video.schema';
 
 @Injectable()
 export class ContractsService {
@@ -20,6 +21,7 @@ export class ContractsService {
     private readonly streamerModel: Model<Streamer>,
     @InjectModel(Token.name) private readonly tokenModel: Model<Token>,
     @InjectModel(Support.name) private readonly supportModel: Model<Support>,
+    @InjectModel(Video.name) private readonly videoModel: Model<Video>,
   ) {}
 
   async getStreamerByAddress(
@@ -286,6 +288,48 @@ export class ContractsService {
       );
       this.logger.log('Successfully added support');
       return support[0];
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+    }
+  }
+
+  async whvideoAdded(
+    id: string,
+    link: string,
+    thumbnail: string,
+    price: number,
+    session: mongoose.ClientSession | null = null,
+  ): Promise<void> {
+    try {
+      await this.videoModel.create(
+        [
+          {
+            video_id: id,
+            link,
+            thumbnail,
+            price,
+          },
+        ],
+        { session },
+      );
+      this.logger.log('Successfully added video');
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+    }
+  }
+
+  async whvideoRemoved(
+    id: string,
+    session: mongoose.ClientSession | null = null,
+  ): Promise<void> {
+    try {
+      await this.videoModel.deleteOne(
+        { video_id: id },
+        {
+          session,
+        },
+      );
+      this.logger.log('Successfully removed video');
     } catch (error) {
       this.logger.error(error.message, error.stack);
     }

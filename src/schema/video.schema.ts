@@ -23,6 +23,12 @@ export class Video extends CreateUpdate {
     type: String,
   })
   thumbnail: string;
+
+  @Prop({
+    required: true,
+    type: Number,
+  })
+  price: number;
 }
 
 export type VideoDocument = HydratedDocument<Video>;

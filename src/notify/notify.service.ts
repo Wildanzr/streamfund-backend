@@ -5,7 +5,7 @@ import { NotifyGateway } from './notify.gateway';
 import { ContractsService } from 'src/contracts/contracts.service';
 import { StreamService } from 'src/stream/stream.service';
 import { EventSupportReceived, EventTokenAdded } from './dto/events.dto';
-import { SupportDTO } from './dto/listen.dto';
+import { SupportDTO, SupportType } from './dto/listen.dto';
 import { SupportNotificationQueue } from './support-notification-queue';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class NotifyService {
   private readonly baseClient = createPublicClient({
     chain: baseSepolia,
     transport: http(
-      `https://base-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+      `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
     ),
   });
 
@@ -32,7 +32,7 @@ export class NotifyService {
   watchContract() {
     this.logger.log('Watching for events...');
     this.baseClient.watchEvent({
-      address: '0x63B02bDcA6e209ff0A8dab2E3B244820aE8013f1',
+      address: '0x90865f4AB3eebc65F0A00845A9d8eb92E23366FE',
       events: [
         parseAbiItem(
           'event SupportReceived(address indexed streamer, address from, address token, uint256 amount, string message)',
@@ -41,7 +41,7 @@ export class NotifyService {
           'event LiveAdsReceived(address indexed streamer, address from, address token, uint256 amount, string message)',
         ),
         parseAbiItem(
-          'event VideoSupportReceived(address indexed streamer, address from, bytes32 videoId, uint256 amount, string message)',
+          'event VideoSupportReceived( address indexed streamer, address from, bytes32 videoId, address token, uint256 amount, string message)',
         ),
         parseAbiItem('event StreamerRegistered(address streamer)'),
         parseAbiItem(
@@ -110,7 +110,7 @@ export class NotifyService {
                   decimals: tokenInfo.decimal,
                   network: baseSepolia.name,
                   ref_id: null,
-                  type: 1,
+                  type: SupportType.Normal,
                 };
                 this.supportNotificationQueue.addNotification(to, msgStream);
                 const newSupport: EventSupportReceived = {
@@ -144,6 +144,7 @@ export class NotifyService {
                   from: vFrom,
                   message: vMessage,
                   streamer: vStreamer,
+                  token: vToken,
                   videoId,
                 } = log.args;
                 console.log(
@@ -152,6 +153,7 @@ export class NotifyService {
                   vFrom,
                   vMessage,
                   vStreamer,
+                  vToken,
                   videoId,
                 );
                 break;

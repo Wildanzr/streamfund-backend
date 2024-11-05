@@ -32,7 +32,7 @@ export class NotifyService {
   watchContract() {
     this.logger.log('Watching for events...');
     this.baseClient.watchEvent({
-      address: '0x90865f4AB3eebc65F0A00845A9d8eb92E23366FE',
+      address: '0xcaFcAF4Aa0949dA2d3D3b303291c951301B75821',
       events: [
         parseAbiItem(
           'event SupportReceived(address indexed streamer, address from, address token, uint256 amount, string message)',
@@ -141,9 +141,9 @@ export class NotifyService {
               case 'VideoSupportReceived':
                 const {
                   amount: vAmount,
-                  from: vFrom,
                   message: vMessage,
                   streamer: vStreamer,
+                  from: vFrom,
                   token: vToken,
                   videoId,
                 } = log.args;
@@ -156,6 +156,31 @@ export class NotifyService {
                   vToken,
                   videoId,
                 );
+                const vTokenInfo =
+                  await this.contractService.whgetTokenByAddress(vToken);
+                const vMsgStream: SupportDTO = {
+                  amount: Number(vAmount),
+                  from: vFrom,
+                  message: vMessage,
+                  symbol: vTokenInfo.symbol,
+                  decimals: vTokenInfo.decimal,
+                  network: baseSepolia.name,
+                  ref_id: videoId,
+                  type: SupportType.Video,
+                };
+                this.supportNotificationQueue.addNotification(
+                  vStreamer.toString(),
+                  vMsgStream,
+                );
+                const vNewSupport: EventSupportReceived = {
+                  amount: Number(vAmount),
+                  from: vFrom,
+                  message: vMessage,
+                  token: vToken,
+                  hash: log.transactionHash,
+                  streamer: vStreamer.toString(),
+                };
+                await this.contractService.whsupportReceived(vNewSupport);
                 break;
               case 'LiveAdsReceived':
                 const {

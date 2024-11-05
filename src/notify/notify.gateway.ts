@@ -30,6 +30,7 @@ export class NotifyGateway
     queue: SupportNotificationQueue,
   ) {
     queue.setNotifyCallback((streamKey, msg) => {
+      console.log(streamKey);
       this.io.to(streamKey).emit('support', msg);
     });
   }
@@ -66,10 +67,13 @@ export class NotifyGateway
       });
       client.disconnect();
     } else {
+      const streamerAddress =
+        await this.contractsService.getStreamerAddressByStreamkey(streamKey);
       this.io.to(client.id).emit('auth', {
         success: true,
         message: 'Authenticated',
       });
+      client.join(streamerAddress);
     }
   }
 

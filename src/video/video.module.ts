@@ -15,5 +15,6 @@ import { Video, VideoSchema } from 'src/schema/video.schema';
   ],
   controllers: [VideoController],
   providers: [VideoService],
+  exports: [VideoService],
 })
 export class VideoModule {}

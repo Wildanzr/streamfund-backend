@@ -30,7 +30,6 @@ export class NotifyGateway
     queue: SupportNotificationQueue,
   ) {
     queue.setNotifyCallback((streamKey, msg) => {
-      console.log(streamKey);
       this.io.to(streamKey).emit('support', msg);
     });
   }

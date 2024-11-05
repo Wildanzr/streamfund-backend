@@ -11,6 +11,7 @@ import { MQConfig, MQConfigSchema } from 'src/schema/mq-config.schema';
 import { AlertConfig, AlertConfigSchema } from 'src/schema/alert-config.schema';
 import { NotifyModule } from 'src/notify/notify.module';
 import { Video, VideoSchema } from 'src/schema/video.schema';
+import { VideoModule } from 'src/video/video.module';
 
 @Module({
   imports: [
@@ -24,8 +25,11 @@ import { Video, VideoSchema } from 'src/schema/video.schema';
       { name: AlertConfig.name, schema: AlertConfigSchema },
     ]),
     NotifyModule,
+    VideoModule,
+    StreamModule,
   ],
   controllers: [StreamController],
   providers: [StreamService, ContractsService],
+  exports: [StreamService],
 })
 export class StreamModule {}

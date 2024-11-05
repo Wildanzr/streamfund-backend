@@ -188,6 +188,7 @@ export class NotifyService {
                   from: laFrom,
                   message: laMessage,
                   streamer: laStreamer,
+                  token: laToken,
                 } = log.args;
                 console.log(
                   'Live ads received',
@@ -196,6 +197,31 @@ export class NotifyService {
                   laMessage,
                   laStreamer,
                 );
+                const laTokenInfo =
+                  await this.contractService.whgetTokenByAddress(laToken);
+                const laMsgStream: SupportDTO = {
+                  amount: Number(laAmount),
+                  from: laFrom,
+                  message: laMessage,
+                  symbol: laTokenInfo.symbol,
+                  decimals: laTokenInfo.decimal,
+                  network: baseSepolia.name,
+                  ref_id: null,
+                  type: SupportType.Ads,
+                };
+                this.supportNotificationQueue.addNotification(
+                  laStreamer.toString(),
+                  laMsgStream,
+                );
+                const laNewSupport: EventSupportReceived = {
+                  amount: Number(laAmount),
+                  from: laFrom,
+                  message: laMessage,
+                  token: laToken,
+                  hash: log.transactionHash,
+                  streamer: laStreamer.toString(),
+                };
+                await this.contractService.whsupportReceived(laNewSupport);
                 break;
               default:
                 this.logger.log('Unknown event');

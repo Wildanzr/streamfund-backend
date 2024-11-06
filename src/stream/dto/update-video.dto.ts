@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateAlertDTO {
+export class UpdateVideoDTO {
   @ApiProperty({
     description: 'Background color',
     required: true,
@@ -41,14 +41,6 @@ export class UpdateAlertDTO {
   @IsNotEmpty()
   @IsString()
   textSize: string;
-
-  @ApiProperty({
-    description: 'Sound',
-    required: true,
-  })
-  @IsNotEmpty()
-  @IsString()
-  sound: string;
 
   @ApiProperty({
     description: 'Text effect',

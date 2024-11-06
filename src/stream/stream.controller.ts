@@ -23,6 +23,7 @@ import { SupportNotificationQueue } from 'src/notify/support-notification-queue'
 import { SupportType } from 'src/notify/dto/listen.dto';
 import { ContractsService } from 'src/contracts/contracts.service';
 import { VideoService } from 'src/video/video.service';
+import { UpdateVideoDTO } from './dto/update-video.dto';
 
 @Controller('stream')
 @UseGuards(HmacguardGuard)
@@ -150,6 +151,47 @@ export class StreamController {
     return {
       success: true,
       message: 'Alert configuration updated successfully',
+      statusCode: HttpStatus.OK,
+      data: {
+        id,
+      },
+    };
+  }
+
+  @Get('/video')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get video configuration',
+  })
+  async getVideoConfig(
+    @Query() query: QueryStreamkeyDTO,
+  ): Promise<SuccessResponseDTO> {
+    const config = await this.streamService.getVideoConfig(query);
+
+    return {
+      success: true,
+      message: 'Video configuration fetched successfully',
+      statusCode: HttpStatus.OK,
+      data: {
+        config,
+      },
+    };
+  }
+
+  @Put('/video')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Update video configuration',
+  })
+  async updateVideoConfig(
+    @Query() query: QueryStreamkeyDTO,
+    @Body() body: UpdateVideoDTO,
+  ): Promise<SuccessResponseDTO> {
+    const id = await this.streamService.updateVideoConfig(query, body);
+
+    return {
+      success: true,
+      message: 'Video configuration updated successfully',
       statusCode: HttpStatus.OK,
       data: {
         id,

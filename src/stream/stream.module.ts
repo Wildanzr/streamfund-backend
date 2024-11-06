@@ -12,6 +12,7 @@ import { AlertConfig, AlertConfigSchema } from 'src/schema/alert-config.schema';
 import { NotifyModule } from 'src/notify/notify.module';
 import { Video, VideoSchema } from 'src/schema/video.schema';
 import { VideoModule } from 'src/video/video.module';
+import { VideoConfig, VideoConfigSchema } from 'src/schema/video-config.schema';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { VideoModule } from 'src/video/video.module';
       { name: Support.name, schema: SupportSchema },
       { name: Token.name, schema: TokenSchema },
       { name: AlertConfig.name, schema: AlertConfigSchema },
+      { name: VideoConfig.name, schema: VideoConfigSchema },
     ]),
     NotifyModule,
     VideoModule,

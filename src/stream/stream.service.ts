@@ -3,13 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { QRConfig } from 'src/schema/qr-config.schema';
 import { QueryStreamkeyDTO } from './dto/query-stream-key.dto';
-import { ContractsService } from 'src/contracts/contracts.service';
 import { UpdateQRDTO } from './dto/update-qr.dto';
 import { Streamer } from 'src/schema/streamer.schema';
 import { MQConfig } from 'src/schema/mq-config.schema';
 import { UpdateMQDTO } from './dto/update-mq.dto';
 import { AlertConfig } from 'src/schema/alert-config.schema';
 import { UpdateAlertDTO } from './dto/update-alert.dto';
+import { UpdateVideoDTO } from './dto/update-video.dto';
+import { VideoConfig } from 'src/schema/video-config.schema';
 
 @Injectable()
 export class StreamService {
@@ -20,9 +21,10 @@ export class StreamService {
     @InjectModel(MQConfig.name) private readonly mqConfigModel: Model<MQConfig>,
     @InjectModel(AlertConfig.name)
     private readonly alertConfigModel: Model<AlertConfig>,
+    @InjectModel(VideoConfig.name)
+    private readonly videoConfigModel: Model<VideoConfig>,
     @InjectModel(Streamer.name)
     private readonly streamerModel: Model<Streamer>,
-    private readonly contractService: ContractsService,
   ) {}
 
   async getQRConfig(query: QueryStreamkeyDTO) {
@@ -186,6 +188,57 @@ export class StreamService {
     }
   }
 
+  async getVideoConfig(query: QueryStreamkeyDTO) {
+    try {
+      const streamer = await this.streamerModel.findOne({
+        streamkey: query.streamkey,
+      });
+
+      const videoConfig = await this.videoConfigModel
+        .findOne({
+          streamer: streamer._id,
+        })
+        .populate({
+          path: 'streamer',
+          select: '_id address',
+        })
+        .exec();
+
+      return videoConfig;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
+  }
+
+  async updateVideoConfig(
+    query: QueryStreamkeyDTO,
+    body: UpdateVideoDTO,
+  ): Promise<string | null> {
+    try {
+      const streamer = await this.streamerModel.findOne({
+        streamkey: query.streamkey,
+      });
+
+      if (!streamer) {
+        throw new NotFoundException('Streamer not found');
+      }
+
+      const videoConfig = await this.videoConfigModel.findOneAndUpdate(
+        {
+          streamer: streamer._id,
+        },
+        body,
+        { new: true },
+      );
+
+      return videoConfig._id.toString();
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
+  }
+
   // Initializer
   async initConfigs(
     address: string,
@@ -238,6 +291,17 @@ export class StreamService {
           ],
           { session },
         ),
+        await this.videoConfigModel.create([
+          {
+            backgroundColor: '#ffffff',
+            mainColor: '#000000',
+            secondColor: '#ff0000',
+            font: 'font-play',
+            textSize: '20',
+            effect: 'wiggle',
+            streamer: streamer._id,
+          },
+        ]),
       ]);
     } catch (error) {
       this.logger.error(error.message, error.stack);

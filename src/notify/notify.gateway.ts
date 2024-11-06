@@ -30,7 +30,11 @@ export class NotifyGateway
     queue: SupportNotificationQueue,
   ) {
     queue.setNotifyCallback((streamKey, msg) => {
-      this.io.to(streamKey).emit('support', msg);
+      const payload: WsReturnDTO = {
+        data: msg,
+        message: 'Incoming support',
+      };
+      this.io.to(streamKey).emit('support', payload);
     });
   }
 

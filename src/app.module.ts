@@ -18,7 +18,7 @@ import { VideoModule } from './video/video.module';
       process.env.MONGODB_URI || 'mongodb://localhost:27017/',
       {
         appName: 'streamfund',
-        dbName: 'streamfund-v2',
+        dbName: 'streamfund-v4',
       },
     ),
     NotifyModule,

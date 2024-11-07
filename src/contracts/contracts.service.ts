@@ -39,7 +39,7 @@ export class ContractsService {
         .findOne({
           address: q,
         })
-        .select('_id address streamkey supports')
+        .select('_id address streamkey supports liveAdsPrice')
         .populate({
           path: 'supports',
           options: {

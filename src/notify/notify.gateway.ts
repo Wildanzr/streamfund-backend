@@ -19,6 +19,9 @@ import {
 } from './dto/listen.dto';
 import { ContractsService } from 'src/contracts/contracts.service';
 import { SupportNotificationQueue } from './support-notification-queue';
+import { InjectModel } from '@nestjs/mongoose';
+import { Video } from 'src/schema/video.schema';
+import { Model } from 'mongoose';
 
 @WebSocketGateway({ cors: true })
 export class NotifyGateway
@@ -26,6 +29,7 @@ export class NotifyGateway
 {
   private readonly logger = new Logger(NotifyGateway.name);
   constructor(
+    @InjectModel(Video.name) private readonly videoModel: Model<Video>,
     private readonly contractsService: ContractsService,
     queue: SupportNotificationQueue,
   ) {
@@ -111,18 +115,52 @@ export class NotifyGateway
   ): Promise<WsResponse<WsReturnDTO>> {
     this.logger.log(`Message received from client id: ${client.id}`);
     const parsed = JSON.parse(data) as TestAlertDTO;
+    const video = await this.videoModel.findOne({});
+    let message: SupportDTO | undefined;
 
-    const message: SupportDTO = {
-      from: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-      amount: 12400000,
-      decimals: 6,
-      symbol: 'USDC',
-      message:
-        'This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message',
-      network: 'BASE',
-      ref_id: null,
-      type: SupportType.Normal,
-    };
+    switch (parsed.type) {
+      case SupportType.Normal:
+        message = {
+          from: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+          amount: 12400000,
+          decimals: 6,
+          symbol: 'USDC',
+          message:
+            'This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message',
+          network: 'BASE',
+          ref_id: null,
+          type: SupportType.Normal,
+        };
+        break;
+      case SupportType.Video:
+        message = {
+          from: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+          amount: 12400000,
+          decimals: 6,
+          symbol: 'USDC',
+          message:
+            'This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message',
+          network: 'BASE',
+          ref_id: video.video_id,
+          type: SupportType.Video,
+        };
+        break;
+
+      case SupportType.Ads:
+        message = {
+          from: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+          amount: 12400000,
+          decimals: 6,
+          symbol: 'USDC',
+          message:
+            'This is a test message This is a test message This is a test message This is a test message This is a test message This is a test message',
+          network: 'BASE',
+          ref_id: null,
+          type: SupportType.Ads,
+        };
+        break;
+    }
+
     const msg: WsReturnDTO = {
       data: message,
       message: 'This is test message',

@@ -22,6 +22,7 @@ export class WsReturnDTO {
 
 export class TestAlertDTO {
   to: string;
+  type: SupportType;
 }
 
 export class SupportDTO {

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { createPublicClient, http, parseAbiItem } from 'viem';
-import { manta } from 'viem/chains';
+import { mantaSepoliaTestnet } from 'viem/chains';
 import { NotifyGateway } from './notify.gateway';
 import { SupportDTO, WsReturnDTO } from './dto/listen.dto';
 import { EventSupportReceived, EventTokenAdded } from './dto/events.dto';
@@ -64,8 +64,8 @@ export class NotifyService {
 
   private queue = new Map<string, Streamer>();
   private readonly client = createPublicClient({
-    chain: manta,
-    transport: http('https://pacific-rpc.manta.network/http'),
+    chain: mantaSepoliaTestnet,
+    transport: http('https://pacific-rpc.sepolia-testnet.manta.network/http'),
   });
 
   constructor(
@@ -77,7 +77,7 @@ export class NotifyService {
   watchContract() {
     this.logger.log('Watching for events...');
     this.client.watchEvent({
-      address: '0x2a69c74a20e0960faa763a9859b10d6766dcdda1',
+      address: '0x4f346f17c50270E7A3Bfc859671D24eFAab0B1aF',
       events: [
         parseAbiItem(
           'event SupportReceived(address indexed streamer, address from, address token, uint256 amount, string message)',

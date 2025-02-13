@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { createPublicClient, http, parseAbiItem } from 'viem';
-import { baseSepolia } from 'viem/chains';
+import { manta } from 'viem/chains';
 import { NotifyGateway } from './notify.gateway';
 import { SupportDTO, WsReturnDTO } from './dto/listen.dto';
 import { EventSupportReceived, EventTokenAdded } from './dto/events.dto';
@@ -64,10 +64,8 @@ export class NotifyService {
 
   private queue = new Map<string, Streamer>();
   private readonly client = createPublicClient({
-    chain: baseSepolia,
-    transport: http(
-      `https://base-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
-    ),
+    chain: manta,
+    transport: http('https://pacific-rpc.manta.network/http'),
   });
 
   constructor(
@@ -79,7 +77,7 @@ export class NotifyService {
   watchContract() {
     this.logger.log('Watching for events...');
     this.client.watchEvent({
-      address: '0x93d6e32824e24C195b0497381b016927bA042985',
+      address: '0x2a69c74a20e0960faa763a9859b10d6766dcdda1',
       events: [
         parseAbiItem(
           'event SupportReceived(address indexed streamer, address from, address token, uint256 amount, string message)',

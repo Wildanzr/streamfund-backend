@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'streamfund',
+      name: 'streamfund-manta',
       script: './dist/main.js',
       instances: '1',
       exec_mode: 'cluster',

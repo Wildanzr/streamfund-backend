@@ -77,7 +77,7 @@ export class NotifyService {
   watchContract() {
     this.logger.log('Watching for events...');
     this.client.watchEvent({
-      address: '0x4f346f17c50270E7A3Bfc859671D24eFAab0B1aF',
+      address: '0x3501e28eccaDDfC755C4B289ac4A10D0f4438A19',
       events: [
         parseAbiItem(
           'event SupportReceived(address indexed streamer, address from, address token, uint256 amount, string message)',
